@@ -1,0 +1,43 @@
+name: fire_tech_toolbox
+description: Fire Technology Toolbox - Battery Calculator, Resistor Colour Codes & dB Meter
+publish_to: 'none'
+version: 1.0.1+2
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Microphone / audio level metering
+  noise_meter: ^5.0.2
+  # Runtime permissions
+  permission_handler: ^11.3.1
+  # In-app purchases (iOS App Store + Google Play)
+  in_app_purchase: ^3.2.0
+  # Persist unlock state across app restarts
+  shared_preferences: ^2.3.0
+  # On-device Gemma LLM — no API key, works offline
+  flutter_gemma: ^0.3.0
+  # PDF text extraction
+  pdfx: ^2.6.0
+  # File picker — user selects their own PDF standards
+  file_picker: ^8.1.2
+  # Local SQLite database — stores chunks from uploaded standards
+  sqflite: ^2.3.3
+  # File system paths
+  path_provider: ^2.1.4
+  # Path manipulation utilities (used by standards_db.dart)
+  path: ^1.9.0
+  # HTTP client for model download progress
+  http: ^1.2.2
+  # Icons
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

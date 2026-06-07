@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ── Microphone (dB Meter) ─────────────────────────────────────── -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+
+    <!-- ── In-app billing (Pro unlock) ──────────────────────────────── -->
+    <uses-permission android:name="com.android.vending.BILLING"/>
+
+    <!-- ── Storage — read user-selected PDFs (file_picker) ──────────── -->
+    <!-- READ_EXTERNAL_STORAGE needed for Android 9 and below only.     -->
+    <!-- Android 10+ uses scoped storage — no permission required for   -->
+    <!-- files the user explicitly picks via the system file picker.     -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+
+    <!-- ── Internet — Gemma model download (one-time, ~1.5 GB) ──────── -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:label="Fire Tech Toolbox"
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"
+        android:requestLegacyExternalStorage="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"/>
+
+            <meta-data
+                android:name="flutterEmbedding"
+                android:value="2"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Allow the activity to receive PDF files shared from other apps -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/pdf"/>
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+    <!-- Required to query activities on Android 11+ -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Allow querying apps that can open/provide PDF files -->
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="application/pdf"/>
+        </intent>
+    </queries>
+
+</manifest>
