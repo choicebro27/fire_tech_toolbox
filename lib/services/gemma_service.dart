@@ -14,13 +14,8 @@ import 'standards_db.dart';
 
 const String _kModelDownloadedKey = 'gemma_model_downloaded';
 
-// IMPORTANT: The HuggingFace URL for google/gemma-2b-it-tflite is a gated
-// repository that requires authentication. For production:
-//   1. Download the model from: https://www.kaggle.com/models/google/gemma/frameworks/tfLite/
-//   2. Host it on your own Firebase Storage (or any CDN with public read access)
-//   3. Replace the URL below with your hosted URL
 const String _kModelUrl =
-    'https://huggingface.co/google/gemma-2b-it-tflite/resolve/main/gemma-2b-it-gpu-int4.bin';
+    'https://github.com/choicebro27/fire_tech_toolbox/releases/download/v1.0-model/gemma-2b-it-gpu-int4.bin';
 
 enum GemmaStatus { notDownloaded, downloading, ready, error }
 
