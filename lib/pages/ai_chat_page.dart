@@ -435,7 +435,11 @@ class _ModelStatusBanner extends StatelessWidget {
             );
 
           case GemmaStatus.downloading:
-            final pct = (GemmaService.instance.downloadProgress * 100).toStringAsFixed(0);
+            final progress = GemmaService.instance.downloadProgress;
+            final knownSize = progress > 0;
+            final label = knownSize
+                ? 'Downloading AI model… ${(progress * 100).toStringAsFixed(0)}%'
+                : 'Downloading AI model…';
             return Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -447,13 +451,13 @@ class _ModelStatusBanner extends StatelessWidget {
                       const SizedBox(width: 14, height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accent)),
                       const SizedBox(width: 8),
-                      Text('Downloading AI model… $pct%',
+                      Text(label,
                         style: const TextStyle(color: AppColors.accent, fontSize: 12)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   LinearProgressIndicator(
-                    value: GemmaService.instance.downloadProgress,
+                    value: knownSize ? progress : null,
                     backgroundColor: AppColors.accentSoft,
                     valueColor: const AlwaysStoppedAnimation(AppColors.accent),
                     minHeight: 4,

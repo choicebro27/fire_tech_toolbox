@@ -4,7 +4,9 @@
 // Gemma 2B-IT runs entirely on the device — no API key, works offline.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +18,11 @@ const String _kModelDownloadedKey = 'gemma_model_downloaded';
 
 const String _kModelUrl =
     'https://github.com/choicebro27/fire_tech_toolbox/releases/download/v1.0-model/gemma-2b-it-gpu-int4.bin';
+
+// SHA-256 of the model binary hosted at _kModelUrl.
+// Run: shasum -a 256 gemma-2b-it-gpu-int4.bin
+// Leave empty to skip verification (not recommended for production).
+const String _kModelSha256 = 'ef44d548e44a2a6f313c3f3e94a48e1de786871ad95f4cd81bfb35372032cdbd';
 
 enum GemmaStatus { notDownloaded, downloading, ready, error }
 
@@ -75,26 +82,29 @@ class GemmaService extends ChangeNotifier {
         http.Request('GET', Uri.parse(_kModelUrl)),
       );
 
-      if (response.statusCode == 401) {
-        throw Exception(
-          'The Gemma model requires a HuggingFace account with accepted Gemma '
-          'terms of use. Download the model from Kaggle and host it on your own '
-          'server or Firebase Storage, then update the URL in gemma_service.dart.',
-        );
-      }
       if (response.statusCode != 200) {
         throw Exception(
-          'Download server returned HTTP ${response.statusCode}. '
-          'Check the model URL in gemma_service.dart.',
+          'Download failed (HTTP ${response.statusCode}). '
+          'Check your internet connection and try again.',
         );
       }
 
       final totalBytes = response.contentLength ?? 0;
       int received = 0;
+      Digest? computedDigest;
+      final sha256Sink = sha256.startChunkedConversion(
+        ChunkedConversionSink<Digest>.withCallback((d) => computedDigest = d.first),
+      );
       final sink = file.openWrite();
       try {
-        await for (final chunk in response.stream) {
+        await for (final chunk in response.stream.timeout(
+          const Duration(seconds: 60),
+          onTimeout: (_) => throw Exception(
+            'Download stalled — check your internet connection and try again.',
+          ),
+        )) {
           sink.add(chunk);
+          sha256Sink.add(chunk);
           received += chunk.length;
           if (totalBytes > 0) {
             _downloadProgress = received / totalBytes;
@@ -104,7 +114,17 @@ class GemmaService extends ChangeNotifier {
       } finally {
         await sink.close();
       }
+      sha256Sink.close();
       _downloadClient = null;
+
+      if (_kModelSha256.isNotEmpty) {
+        if (computedDigest?.toString() != _kModelSha256) {
+          throw Exception(
+            'Model file integrity check failed — the download may be corrupt '
+            'or tampered with. Tap Retry to download again.',
+          );
+        }
+      }
 
       await _initModel();
 
